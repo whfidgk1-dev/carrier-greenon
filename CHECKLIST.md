@@ -199,6 +199,32 @@
 - [x] 모션 최소화 접근성 유지
 
 
+## PHASE 17 — Interactive Water Button
+
+- [x] 순수 JavaScript 재사용 컴포넌트
+- [x] frosted glass 캡슐 디자인
+- [x] 65~70% 청록색 수위 및 깊이 그라데이션
+- [x] 1D shallow-water 높이·속도 시뮬레이션
+- [x] 인접 장력·파동 전달·감쇠 계산
+- [x] 마우스 빠른 이동·클릭·좌우 드래그
+- [x] 모바일 터치·드래그
+- [x] 독립 물방울 위치·속도·중력·투명도
+- [x] 클릭 Press 피드백
+- [x] auto-sleep 및 입력 시 재시작
+- [x] 화면 밖 렌더링 일시 정지
+- [x] 제거 시 이벤트·RAF·Observer 정리
+- [x] devicePixelRatio 최대 2 대응
+- [x] 모바일 계산 지점·입자 수 제한
+- [x] 모션 최소화 사용자 대응
+- [x] label 등 11개 옵션 커스터마이징
+- [x] button·키보드·focus-visible·disabled 접근성
+- [x] 홈 화면 사용 예시
+- [x] 데스크톱·모바일 브라우저 시각 검증
+- [x] 클릭·드래그 파동 및 물방울 생성 검증
+- [x] auto-sleep 복귀 검증
+- [x] 화면 전환 시 destroy 정리 검증
+
+
 ## FINAL CHECK
 
 - [x] PROJECT.md 요구사항 누락 검사

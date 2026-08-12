@@ -2,9 +2,11 @@ import './style.css';
 import {configured,supabase,getDemo,signUp,signIn,signOut,loadCloudState,startMission,addMissionTime,buyReward,saveAircon,missions,rewards as demoRewards} from './store.js';
 import {weatherLocation,getHourlyWeather} from './data.js';
 import {SALMON_FRAME_DURATION,salmonStoryFrames} from './salmon-story.js';
+import {createWaterButton} from './water-button.js';
 
 const app=document.querySelector('#app');
 let state={...getDemo(),rewards:demoRewards}; let page='home'; let authOpen=false; let message='';
+let waterButtonInstance=null;
 const esc=value=>String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const dateText=new Intl.DateTimeFormat('ko-KR',{month:'long',day:'numeric',weekday:'short'}).format(new Date());
 const hourlyWeather=getHourlyWeather();
@@ -71,6 +73,7 @@ function danger(){const a=state.aircon;return !a.sensorOk||a.filter<20||a.temper
 function header(){return `<header><div class="brand"><span class="logo">C</span><div><b>Carrier GreenON</b><small>나의 시원한 친환경 습관</small></div></div><button class="avatar" data-action="auth" aria-label="계정">${state.user?'😊':'👤'}</button></header>`}
 function home(){const a=state.aircon;const bad=danger();const progress=Math.min(100,Math.round(((state.mission?.progress_minutes||0)/120)*100));return `<main>
   <section class="hero"><div><span class="eyebrow">${dateText} · ${weatherLocation}</span><h1>오늘도 지구와 함께<br><em>시원해져요!</em></h1><p>작은 냉방 습관이 큰 초록을 만들어요.</p></div><div class="hero-art salmon-story" role="img" aria-label="곰이 오른쪽에서 왼쪽으로 이동해 연어를 양손으로 잡고 먹은 뒤 오른쪽으로 돌아오는 20프레임 애니메이션"><img class="story-frame" src="/salmon-story/frame-01.png" alt="" aria-hidden="true"></div></section>
+  <section class="water-button-demo" aria-labelledby="water-button-title"><div class="water-button-demo__copy"><small>INTERACTIVE ECO ACTION</small><h2 id="water-button-title">물결을 깨워 보세요</h2><p>누르거나 좌우로 드래그하면 유리 속 물이 실제처럼 반응해요.</p><span class="water-button-demo__status" id="water-button-status" role="status" aria-live="polite"></span></div><div class="water-button-demo__mount" id="water-button-mount"></div></section>
   <div class="grid two"><article class="card weather"><div class="card-title"><span class="icon">${currentWeather.icon}</span><div><small>${weatherLocation} 현재 날씨</small><h2>${currentWeather.condition} ${currentWeather.temperature}°C</h2></div></div><div class="chips"><span>습도 62%</span><span>미세먼지 좋음</span></div></article>
   <article class="card ${bad?'danger':''}"><div class="card-head"><div class="card-title"><span class="icon">❄️</span><div><small>거실 에어컨</small><h2>${a.power?'냉방 중':'전원 꺼짐'} · ${a.temperature}°C</h2></div></div><span class="status">${bad?'점검 필요':'정상'}</span></div><div class="stats"><span>바람 ${a.fan}</span><span>필터 ${a.filter}%</span><span>${a.sensorOk?'센서 정상':'센서 오류'}</span></div></article></div>
   <section class="hourly-section" aria-labelledby="hourly-weather-title"><div class="section-head hourly-head"><div><small>GWANGJU WEATHER</small><h2 id="hourly-weather-title">시간별 기온</h2></div><span class="weather-source">가상 날씨 데이터</span></div><div class="hourly-weather" role="list" aria-label="광주 24시간 기온">${hourlyWeather.map((weather,index)=>`<article class="hourly-item ${index===0?'current':''}" role="listitem"><span class="hourly-time">${weather.label}</span><span class="hourly-icon" aria-hidden="true">${weather.icon}</span><strong>${weather.temperature}°</strong><small>${weather.condition}</small></article>`).join('')}</div></section>
@@ -83,7 +86,28 @@ function wallet(){return `<main><div class="page-title"><span class="eyebrow">GR
 function shop(){return `<main><div class="page-title shop-title"><span class="eyebrow">GREEN REWARD SHOP</span><h1>초록 습관을 선물로 바꿔요</h1><p>보유 ${state.points.toLocaleString()} P</p></div><div class="products">${state.rewards.map(r=>`<article class="product"><div class="product-art">${r.emoji||'🎁'}</div><span>${esc(r.category)}</span><h2>${esc(r.name)}</h2><p>${esc(r.description||'')}</p><div><b>${Number(r.points).toLocaleString()} P</b><button data-buy="${esc(r.id)}">구매</button></div></article>`).join('')}</div><section class="section-head"><h2>구매내역</h2></section><div class="list">${state.orders.length?state.orders.map(o=>`<article><span class="history-icon">🎁</span><div><b>${esc(o.rewards?.name||o.reward_name)}</b><small>${new Date(o.created_at).toLocaleDateString('ko-KR')}</small></div><strong>${Number(o.points_spent).toLocaleString()} P</strong></article>`).join(''):'<div class="empty">아직 구매한 상품이 없어요.</div>'}</div></main>`}
 function report(){const done=state.mission?.status==='completed'?1:0;return `<main><div class="page-title"><span class="eyebrow">GREEN REPORT</span><h1>나의 초록 리포트</h1><p>꾸준한 냉방 습관을 한눈에 확인해요.</p></div><div class="report-hero"><span>🌳</span><h2>${level(state.points)}</h2><p>다음 레벨까지 ${Math.max(0,(state.points<2000?2000:5000)-state.points).toLocaleString()} P</p></div><div class="grid three"><article class="mini"><small>완료 미션</small><b>${done}회</b></article><article class="mini"><small>절약 냉방</small><b>${state.mission?.progress_minutes||0}분</b></article><article class="mini"><small>받은 포인트</small><b>${state.transactions.filter(t=>t.amount>0).reduce((s,t)=>s+Number(t.amount),0)}P</b></article></div></main>`}
 function auth(){return authOpen?`<div class="modal-backdrop"><form class="modal" id="auth-form"><button type="button" class="close" data-action="auth">×</button><span class="logo">C</span><h2>${state.user&&configured?'내 계정':'GreenON 시작하기'}</h2>${state.user&&configured?`<p>${esc(state.user.email)}</p><button type="button" data-action="logout">로그아웃</button>`:`<label>이메일<input name="email" type="email" required placeholder="green@example.com"></label><label>비밀번호<input name="password" type="password" minlength="6" required placeholder="6자 이상"></label><button name="mode" value="login">로그인</button><button class="secondary" name="mode" value="signup">회원가입</button>${!configured?'<p class="warning">데모 모드입니다. Supabase 환경변수를 설정하면 인증이 활성화됩니다.</p>':''}`}</form></div>`:''}
-function render(){app.innerHTML=`${header()}${message}${page==='home'?home():page==='aircon'?aircon():page==='wallet'?wallet():page==='shop'?shop():report()}<nav>${[['home','⌂','홈'],['aircon','❄','에어컨'],['wallet','P','지갑'],['shop','🎁','리워드'],['report','▥','리포트']].map(([p,i,l])=>`<button data-page="${p}" class="${page===p?'active':''}"><span>${i}</span>${l}</button>`).join('')}</nav>${auth()}`;requestAnimationFrame(startSalmonStory)}
+function render(){
+  // 화면 교체 전에 Canvas 애니메이션과 관찰자를 정리합니다.
+  waterButtonInstance?.waterButton.destroy();
+  waterButtonInstance=null;
+  app.innerHTML=`${header()}${message}${page==='home'?home():page==='aircon'?aircon():page==='wallet'?wallet():page==='shop'?shop():report()}<nav>${[['home','⌂','홈'],['aircon','❄','에어컨'],['wallet','P','지갑'],['shop','🎁','리워드'],['report','▥','리포트']].map(([p,i,l])=>`<button data-page="${p}" class="${page===p?'active':''}"><span>${i}</span>${l}</button>`).join('')}</nav>${auth()}`;
+  if(page==='home'){
+    const mount=app.querySelector('#water-button-mount');
+    waterButtonInstance=createWaterButton({
+      label:'WATER BUTTON',
+      waterColor:'#12dce6',
+      waterLevel:.68,
+      glassTint:'rgba(218, 251, 255, .08)',
+      waveStrength:1.15,
+      onClick:()=>{
+        const status=app.querySelector('#water-button-status');
+        if(status)status.textContent='💧 시원한 물결을 만들었어요!';
+      }
+    });
+    mount?.append(waterButtonInstance);
+  }
+  requestAnimationFrame(startSalmonStory);
+}
 async function refresh(){if(configured&&state.user) state=await loadCloudState(state.user);render()}
 
 // 20장의 프레임을 0.2초마다 교체해 4초 길이의 GIF 같은 장면을 만듭니다.

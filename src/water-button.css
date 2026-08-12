@@ -1,0 +1,118 @@
+.water-button {
+  position: relative;
+  isolation: isolate;
+  width: min(100%, 340px);
+  min-height: 112px;
+  overflow: visible;
+  touch-action: none;
+  border: 1px solid var(--water-border);
+  border-radius: var(--water-radius);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.16), transparent 38%),
+    var(--water-glass-tint);
+  color: #f7ffff;
+  box-shadow: var(--water-shadow);
+  backdrop-filter: blur(var(--water-frost)) saturate(145%);
+  -webkit-backdrop-filter: blur(var(--water-frost)) saturate(145%);
+  transform: translateY(0) scale(1);
+  transition: transform .14s ease, border-color .2s ease, box-shadow .2s ease, opacity .2s ease;
+}
+
+.water-button::before {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  inset: 2px 12px auto;
+  height: 34%;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,.2), transparent);
+  pointer-events: none;
+}
+
+.water-button:hover:not(:disabled) {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.2), transparent 38%),
+    var(--water-glass-tint);
+  border-color: rgba(235,255,255,.95);
+  transform: translateY(-2px);
+}
+
+.water-button.is-pressed:not(:disabled) {
+  transform: translateY(2px) scale(.975);
+  box-shadow: 0 9px 22px rgba(0,0,0,.38), inset 0 2px 6px rgba(0,30,40,.28);
+}
+
+.water-button:focus-visible {
+  outline: 3px solid rgba(20,223,232,.5);
+  outline-offset: 5px;
+}
+
+.water-button:disabled {
+  cursor: not-allowed;
+  filter: grayscale(.58);
+  opacity: .5;
+}
+
+.water-button__canvas {
+  position: absolute;
+  z-index: 0;
+  max-width: none;
+  pointer-events: none;
+}
+
+.water-button__label {
+  position: relative;
+  z-index: 3;
+  display: block;
+  color: #f4ffff;
+  font: 800 clamp(19px, 3vw, 25px)/1 'Noto Sans KR', sans-serif;
+  letter-spacing: .06em;
+  text-shadow: 0 2px 9px rgba(0,35,48,.9), 0 1px 1px #003b4a;
+  pointer-events: none;
+}
+
+.water-button-demo {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0,1fr) minmax(280px,380px);
+  align-items: center;
+  gap: 30px;
+  margin: 18px 0 4px;
+  padding: 28px 34px;
+  overflow: hidden;
+  border: 1px solid rgba(65,224,235,.25);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 86% 15%, rgba(20,223,232,.16), transparent 18rem),
+    linear-gradient(135deg,#142224,#0c1012 70%);
+  box-shadow: var(--shadow);
+}
+
+.water-button-demo::after {
+  content: '';
+  position: absolute;
+  inset: auto -10% -75% 42%;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(20,223,232,.11);
+  filter: blur(32px);
+  pointer-events: none;
+}
+
+.water-button-demo__copy { position: relative; z-index: 1; }
+.water-button-demo__copy h2 { margin: 5px 0 7px; font: 29px/1.15 Jua; }
+.water-button-demo__copy p { margin: 0; color: #b8ccce; font-size: 14px; }
+.water-button-demo__copy small { color: #35e9f0; font-weight: 800; letter-spacing: 1.2px; }
+.water-button-demo__status { display: block; min-height: 22px; margin-top: 9px; color: #71f5ef; font-size: 13px; font-weight: 800; }
+.water-button-demo__mount { position: relative; z-index: 2; display: grid; place-items: center; min-height: 150px; }
+
+@media (max-width: 700px) {
+  .water-button-demo { grid-template-columns: 1fr; gap: 18px; padding: 24px 20px 28px; text-align: center; }
+  .water-button-demo__copy h2 { font-size: 25px; }
+  .water-button-demo__mount { min-height: 125px; }
+  .water-button { min-height: 98px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .water-button { transition: none; }
+}
