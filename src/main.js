@@ -9,6 +9,62 @@ const esc=value=>String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;
 const dateText=new Intl.DateTimeFormat('ko-KR',{month:'long',day:'numeric',weekday:'short'}).format(new Date());
 const hourlyWeather=getHourlyWeather();
 const currentWeather=hourlyWeather[0];
+
+// 마우스를 사용하는 PC에서만 사이트 전용 노란 커서를 만듭니다.
+// 터치 기기와 모션 최소화 환경에서는 운영체제 기본 커서를 그대로 사용합니다.
+function initCustomCursor(){
+  const finePointer=matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!finePointer||reduceMotion)return;
+
+  const dot=document.createElement('span');
+  const ring=document.createElement('span');
+  dot.className='custom-cursor-dot';
+  ring.className='custom-cursor-ring';
+  dot.setAttribute('aria-hidden','true');
+  ring.setAttribute('aria-hidden','true');
+  document.body.append(dot,ring);
+  document.body.classList.add('has-custom-cursor');
+
+  let mouseX=-40;
+  let mouseY=-40;
+  let ringX=-40;
+  let ringY=-40;
+  let cursorAnimation=0;
+  const interactiveSelector='button, a, input, label, [role="button"]';
+
+  const drawRing=()=>{
+    ringX+=(mouseX-ringX)*.24;
+    ringY+=(mouseY-ringY)*.24;
+    ring.style.transform=`translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+    cursorAnimation=requestAnimationFrame(drawRing);
+  };
+
+  document.addEventListener('pointermove',event=>{
+    if(event.pointerType==='touch')return;
+    mouseX=event.clientX;
+    mouseY=event.clientY;
+    dot.style.transform=`translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
+    dot.classList.add('is-visible');
+    ring.classList.add('is-visible');
+    const interactive=event.target.closest?.(interactiveSelector);
+    dot.classList.toggle('is-interactive',Boolean(interactive));
+    ring.classList.toggle('is-interactive',Boolean(interactive));
+    ring.classList.toggle('is-disabled',Boolean(interactive?.matches(':disabled')));
+  });
+
+  document.addEventListener('pointerdown',event=>{
+    if(event.pointerType!=='touch')ring.classList.add('is-pressed');
+  });
+  document.addEventListener('pointerup',()=>ring.classList.remove('is-pressed'));
+  document.documentElement.addEventListener('mouseleave',()=>{
+    dot.classList.remove('is-visible');
+    ring.classList.remove('is-visible');
+  });
+  cursorAnimation=requestAnimationFrame(drawRing);
+}
+
+initCustomCursor();
 function alert(text,type='info'){message=`<div class="toast ${type}">${esc(text)}</div>`;render();setTimeout(()=>{message='';render()},2600)}
 function level(points){return points>=5000?'TREE':points>=2000?'SPROUT':'SEED'}
 function danger(){const a=state.aircon;return !a.sensorOk||a.filter<20||a.temperature<26}
@@ -57,37 +113,6 @@ function startSalmonStory(){
   };
   salmonStoryAnimation=requestAnimationFrame(showFrame);
 }
-
-// 마우스가 히어로 위를 움직이면 곰이 시선을 따라오는 듯 가볍게 이동합니다.
-// 터치 조작과 모션 최소화 환경에서는 실행하지 않아 불필요한 움직임을 막습니다.
-let bearPointerFrame=0;
-app.addEventListener('pointermove',event=>{
-  const hero=event.target.closest?.('.hero');
-  if(!hero||event.pointerType==='touch'||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-  const bear=hero.querySelector('.hero-art');
-  if(!bear)return;
-  cancelAnimationFrame(bearPointerFrame);
-  bearPointerFrame=requestAnimationFrame(()=>{
-    const rect=hero.getBoundingClientRect();
-    const x=Math.max(-1,Math.min(1,((event.clientX-rect.left)/rect.width-.5)*2));
-    const y=Math.max(-1,Math.min(1,((event.clientY-rect.top)/rect.height-.5)*2));
-    bear.style.setProperty('--mouse-x',`${(x*11).toFixed(2)}px`);
-    bear.style.setProperty('--mouse-y',`${(y*8).toFixed(2)}px`);
-    bear.style.setProperty('--mouse-rotate',`${(x*2.5).toFixed(2)}deg`);
-    bear.classList.add('is-pointer-active');
-  });
-});
-
-app.addEventListener('pointerout',event=>{
-  const hero=event.target.closest?.('.hero');
-  if(!hero||hero.contains(event.relatedTarget))return;
-  const bear=hero.querySelector('.hero-art');
-  if(!bear)return;
-  bear.classList.remove('is-pointer-active');
-  bear.style.setProperty('--mouse-x','0px');
-  bear.style.setProperty('--mouse-y','0px');
-  bear.style.setProperty('--mouse-rotate','0deg');
-});
 
 app.addEventListener('click',async e=>{const target=e.target.closest('button');if(!target)return;
   if(target.dataset.page){page=target.dataset.page;render();return} const action=target.dataset.action;

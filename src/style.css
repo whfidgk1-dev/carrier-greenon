@@ -28,6 +28,67 @@ body {
   padding-bottom: 92px;
 }
 
+/* 마우스 입력이 가능한 PC에서만 운영체제 커서를 사이트 전용 커서로 교체합니다. */
+@media (hover: hover) and (pointer: fine) {
+  body.has-custom-cursor,
+  body.has-custom-cursor * { cursor: none !important; }
+}
+
+.custom-cursor-dot,
+.custom-cursor-ring {
+  position: fixed;
+  z-index: 10000;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform;
+}
+
+.custom-cursor-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--yellow);
+  box-shadow: 0 0 12px rgba(255, 212, 0, .8);
+  transition: width .16s ease, height .16s ease, background .16s ease, opacity .12s ease;
+}
+
+.custom-cursor-ring {
+  width: 34px;
+  height: 34px;
+  border: 2px solid rgba(255, 212, 0, .72);
+  background: rgba(255, 212, 0, .06);
+  transition: width .18s ease, height .18s ease, border-color .18s ease, background .18s ease, opacity .12s ease;
+}
+
+.custom-cursor-dot.is-visible,
+.custom-cursor-ring.is-visible { opacity: 1; }
+
+.custom-cursor-dot.is-interactive {
+  width: 6px;
+  height: 6px;
+  background: #111;
+}
+
+.custom-cursor-ring.is-interactive {
+  width: 46px;
+  height: 46px;
+  border-color: var(--yellow);
+  background: rgba(255, 212, 0, .72);
+}
+
+.custom-cursor-ring.is-pressed {
+  width: 26px;
+  height: 26px;
+  background: rgba(255, 212, 0, .9);
+}
+
+.custom-cursor-ring.is-disabled {
+  border-color: var(--red);
+  background: rgba(255, 89, 100, .18);
+}
+
 button,
 input { font: inherit; }
 
@@ -151,9 +212,6 @@ main {
 }
 
 .hero-art {
-  --mouse-x: 0px;
-  --mouse-y: 0px;
-  --mouse-rotate: 0deg;
   position: relative;
   flex: 0 0 420px;
   width: 420px;
@@ -163,14 +221,6 @@ main {
   border-radius: 38px;
   background: #000;
   box-shadow: 0 14px 28px rgba(0, 0, 0, .42), 0 0 24px rgba(255, 212, 0, .08);
-  transform: translate3d(var(--mouse-x), var(--mouse-y), 0) rotate(var(--mouse-rotate));
-  transform-origin: 50% 70%;
-  transition: transform .38s cubic-bezier(.2, .8, .2, 1), box-shadow .38s ease;
-  will-change: transform;
-}
-
-.hero-art.is-pointer-active {
-  box-shadow: 0 18px 36px rgba(0, 0, 0, .52), 0 0 30px rgba(255, 212, 0, .15);
 }
 
 .story-frame {
@@ -725,5 +775,6 @@ nav button.active {
 
 @media (prefers-reduced-motion: reduce) {
   .salmon-story { animation: none; }
-  .hero-art { transform: none; transition: none; }
+  .custom-cursor-dot,
+  .custom-cursor-ring { display: none; }
 }
