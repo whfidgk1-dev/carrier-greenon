@@ -151,6 +151,9 @@ main {
 }
 
 .hero-art {
+  --mouse-x: 0px;
+  --mouse-y: 0px;
+  --mouse-rotate: 0deg;
   position: relative;
   flex: 0 0 230px;
   width: 230px;
@@ -160,6 +163,14 @@ main {
   border-radius: 44px;
   background: #0d0d0d;
   box-shadow: 0 14px 28px rgba(0, 0, 0, .42), 0 0 24px rgba(255, 212, 0, .08);
+  transform: translate3d(var(--mouse-x), var(--mouse-y), 0) rotate(var(--mouse-rotate));
+  transform-origin: 50% 70%;
+  transition: transform .38s cubic-bezier(.2, .8, .2, 1), box-shadow .38s ease;
+  will-change: transform;
+}
+
+.hero-art.is-pointer-active {
+  box-shadow: 0 18px 36px rgba(0, 0, 0, .52), 0 0 30px rgba(255, 212, 0, .15);
 }
 
 .bear-frame {
@@ -731,4 +742,5 @@ nav button.active {
 
 @media (prefers-reduced-motion: reduce) {
   .bear-frame { animation: none; }
+  .hero-art { transform: none; transition: none; }
 }

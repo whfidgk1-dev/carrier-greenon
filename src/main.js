@@ -28,6 +28,38 @@ function report(){const done=state.mission?.status==='completed'?1:0;return `<ma
 function auth(){return authOpen?`<div class="modal-backdrop"><form class="modal" id="auth-form"><button type="button" class="close" data-action="auth">×</button><span class="logo">C</span><h2>${state.user&&configured?'내 계정':'GreenON 시작하기'}</h2>${state.user&&configured?`<p>${esc(state.user.email)}</p><button type="button" data-action="logout">로그아웃</button>`:`<label>이메일<input name="email" type="email" required placeholder="green@example.com"></label><label>비밀번호<input name="password" type="password" minlength="6" required placeholder="6자 이상"></label><button name="mode" value="login">로그인</button><button class="secondary" name="mode" value="signup">회원가입</button>${!configured?'<p class="warning">데모 모드입니다. Supabase 환경변수를 설정하면 인증이 활성화됩니다.</p>':''}`}</form></div>`:''}
 function render(){app.innerHTML=`${header()}${message}${page==='home'?home():page==='aircon'?aircon():page==='wallet'?wallet():page==='shop'?shop():report()}<nav>${[['home','⌂','홈'],['aircon','❄','에어컨'],['wallet','P','지갑'],['shop','🎁','리워드'],['report','▥','리포트']].map(([p,i,l])=>`<button data-page="${p}" class="${page===p?'active':''}"><span>${i}</span>${l}</button>`).join('')}</nav>${auth()}`}
 async function refresh(){if(configured&&state.user) state=await loadCloudState(state.user);render()}
+
+// 마우스가 히어로 위를 움직이면 곰이 시선을 따라오는 듯 가볍게 이동합니다.
+// 터치 조작과 모션 최소화 환경에서는 실행하지 않아 불필요한 움직임을 막습니다.
+let bearPointerFrame=0;
+app.addEventListener('pointermove',event=>{
+  const hero=event.target.closest?.('.hero');
+  if(!hero||event.pointerType==='touch'||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const bear=hero.querySelector('.hero-art');
+  if(!bear)return;
+  cancelAnimationFrame(bearPointerFrame);
+  bearPointerFrame=requestAnimationFrame(()=>{
+    const rect=hero.getBoundingClientRect();
+    const x=Math.max(-1,Math.min(1,((event.clientX-rect.left)/rect.width-.5)*2));
+    const y=Math.max(-1,Math.min(1,((event.clientY-rect.top)/rect.height-.5)*2));
+    bear.style.setProperty('--mouse-x',`${(x*11).toFixed(2)}px`);
+    bear.style.setProperty('--mouse-y',`${(y*8).toFixed(2)}px`);
+    bear.style.setProperty('--mouse-rotate',`${(x*2.5).toFixed(2)}deg`);
+    bear.classList.add('is-pointer-active');
+  });
+});
+
+app.addEventListener('pointerout',event=>{
+  const hero=event.target.closest?.('.hero');
+  if(!hero||hero.contains(event.relatedTarget))return;
+  const bear=hero.querySelector('.hero-art');
+  if(!bear)return;
+  bear.classList.remove('is-pointer-active');
+  bear.style.setProperty('--mouse-x','0px');
+  bear.style.setProperty('--mouse-y','0px');
+  bear.style.setProperty('--mouse-rotate','0deg');
+});
+
 app.addEventListener('click',async e=>{const target=e.target.closest('button');if(!target)return;
   if(target.dataset.page){page=target.dataset.page;render();return} const action=target.dataset.action;
   if(action==='auth'){authOpen=!authOpen;render();return} if(action==='logout'){await signOut();authOpen=false;location.reload();return}
