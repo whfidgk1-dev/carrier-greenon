@@ -133,6 +133,7 @@ main {
 .hero h1 {
   margin: 10px 0;
   font: 42px/1.15 Jua;
+  word-break: keep-all;
 }
 
 .hero h1 em {
@@ -151,14 +152,25 @@ main {
 
 .hero-art {
   position: relative;
-  font-size: 100px;
-  filter: drop-shadow(0 12px 14px rgba(0, 0, 0, .55));
+  flex: 0 0 230px;
+  width: 230px;
+  overflow: hidden;
+  border: 1px solid #5a4c08;
+  border-radius: 44px;
+  background: #0d0d0d;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, .42), 0 0 24px rgba(255, 212, 0, .08);
 }
 
-.hero-art span {
-  position: absolute;
-  right: -5px;
-  font-size: 42px;
+.hero-art img {
+  display: block;
+  width: 100%;
+  height: auto;
+  animation: bear-float 3.6s ease-in-out infinite;
+}
+
+@keyframes bear-float {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-7px) rotate(1deg); }
 }
 
 .grid {
@@ -616,7 +628,7 @@ nav button.active {
   main { padding: 8px 14px; }
   .hero { min-height: 205px; padding: 25px; }
   .hero h1 { font-size: 30px; }
-  .hero-art { font-size: 62px; }
+  .hero-art { flex-basis: 112px; width: 112px; border-radius: 28px; }
   .two,
   .three { grid-template-columns: 1fr; }
   .grid.three { grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -628,4 +640,8 @@ nav button.active {
   .actions button { flex: 1; }
   .stats { flex-wrap: wrap; }
   .page-title h1 { font-size: 30px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-art img { animation: none; }
 }
