@@ -123,19 +123,19 @@
 
 ## PHASE 11 — Render 배포
 
-> `render.yaml`과 환경변수 구성을 완료했고 Render `My Workspace` 연결을 확인했습니다. 워크스페이스 선택 확인과 Git 원격 저장소 연결 후 배포를 진행합니다.
+> Render `My Workspace` 배포 완료: https://carrier-greenon-elk8.onrender.com (2026-08-12 공개 URL E2E PASS)
 
-- [ ] Render 서비스 생성
+- [x] Render 서비스 생성
 - [x] Git 저장소 연결 (`whfidgk1-dev/carrier-greenon`)
-- [ ] 환경변수 등록
-- [ ] Build 성공
-- [ ] 배포 성공
-- [ ] 배포 URL 접속
-- [ ] 회원가입 테스트
-- [ ] 로그인 테스트
-- [ ] 미션 테스트
-- [ ] 포인트 적립 테스트
-- [ ] Reward 구매 테스트
+- [x] 환경변수 등록
+- [x] Build 성공
+- [x] 배포 성공
+- [x] 배포 URL 접속
+- [x] 회원가입 테스트
+- [x] 로그인 테스트
+- [x] 미션 테스트
+- [x] 포인트 적립 테스트
+- [x] Reward 구매 테스트
 
 
 ## FINAL CHECK
@@ -146,4 +146,4 @@
 - [x] Warning/Error Red 확인
 - [x] Supabase 보안 정적 확인 (RLS/권한/브라우저 secret 미노출)
 - [x] 전체 로컬 기능 회귀 테스트
-- [ ] 최종 배포 확인
+- [x] 최종 배포 확인
