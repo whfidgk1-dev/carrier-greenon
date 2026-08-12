@@ -17,10 +17,10 @@ export async function loadCloudState(user){
   const [profile,aircon,mission,transactions,orders,shop]=await Promise.all([
     supabase.from('profiles').select('*').eq('id',user.id).single(),
     supabase.from('aircon_status').select('*').eq('user_id',user.id).maybeSingle(),
-    supabase.from('user_missions').select('*,missions(*)').eq('user_id',user.id).order('created_at',{ascending:false}).limit(1).maybeSingle(),
+    supabase.from('user_missions').select('*,missions(*)').eq('user_id',user.id).order('started_at',{ascending:false}).limit(1).maybeSingle(),
     supabase.from('point_transactions').select('*').eq('user_id',user.id).order('created_at',{ascending:false}),
     supabase.from('reward_orders').select('*,rewards(*)').eq('user_id',user.id).order('created_at',{ascending:false}),
-    supabase.from('rewards').select('*').eq('is_active',true).order('points')]);
+    supabase.from('rewards').select('*').eq('is_active',true).order('price')]);
   const failure=[profile,aircon,mission,transactions,orders,shop].find(result=>result.error);
   if(failure) throw failure.error;
   const savedAircon=aircon.data;
