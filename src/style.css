@@ -305,6 +305,70 @@ main {
 
 .secondary:hover:not(:disabled) { background: #40380a; }
 
+.hourly-section { margin-top: 4px; }
+
+.hourly-head {
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.hourly-head small { color: var(--yellow); }
+
+.weather-source {
+  padding: 6px 9px;
+  border: 1px solid #40390d;
+  border-radius: 20px;
+  background: #211e0a;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.hourly-weather {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 92px;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 2px 2px 12px;
+  scroll-padding-inline: 2px;
+  scroll-snap-type: x proximity;
+  scrollbar-color: #5c500e #1a1a1a;
+  scrollbar-width: thin;
+}
+
+.hourly-item {
+  min-height: 126px;
+  padding: 13px 8px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid #353535;
+  border-radius: 19px;
+  background: linear-gradient(145deg, #1c1c1c, #141414);
+  box-shadow: 0 9px 24px rgba(0, 0, 0, .24);
+  scroll-snap-align: start;
+}
+
+.hourly-item.current {
+  border-color: #756407;
+  background: linear-gradient(145deg, #393008, #1c1a0e);
+}
+
+.hourly-time {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.hourly-item.current .hourly-time { color: var(--yellow); }
+.hourly-icon { font-size: 24px; }
+.hourly-item strong { color: #fff; font-size: 20px; }
+.hourly-item small { color: var(--muted); font-size: 10px; }
+
 .section-head {
   display: flex;
   align-items: end;

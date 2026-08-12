@@ -1,18 +1,22 @@
 import './style.css';
 import {configured,supabase,getDemo,signUp,signIn,signOut,loadCloudState,startMission,addMissionTime,buyReward,saveAircon,missions,rewards as demoRewards} from './store.js';
+import {weatherLocation,getHourlyWeather} from './data.js';
 
 const app=document.querySelector('#app');
 let state={...getDemo(),rewards:demoRewards}; let page='home'; let authOpen=false; let message='';
 const esc=value=>String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const dateText=new Intl.DateTimeFormat('ko-KR',{month:'long',day:'numeric',weekday:'short'}).format(new Date());
+const hourlyWeather=getHourlyWeather();
+const currentWeather=hourlyWeather[0];
 function alert(text,type='info'){message=`<div class="toast ${type}">${esc(text)}</div>`;render();setTimeout(()=>{message='';render()},2600)}
 function level(points){return points>=5000?'TREE':points>=2000?'SPROUT':'SEED'}
 function danger(){const a=state.aircon;return !a.sensorOk||a.filter<20||a.temperature<26}
 function header(){return `<header><div class="brand"><span class="logo">C</span><div><b>Carrier GreenON</b><small>나의 시원한 친환경 습관</small></div></div><button class="avatar" data-action="auth" aria-label="계정">${state.user?'😊':'👤'}</button></header>`}
 function home(){const a=state.aircon;const bad=danger();const progress=Math.min(100,Math.round(((state.mission?.progress_minutes||0)/120)*100));return `<main>
-  <section class="hero"><div><span class="eyebrow">${dateText} · 서울</span><h1>오늘도 지구와 함께<br><em>시원해져요!</em></h1><p>작은 냉방 습관이 큰 초록을 만들어요.</p></div><div class="hero-art"><img src="/greenon-bear.png" alt="눈송이와 초록 잎을 든 GreenON 곰 캐릭터"></div></section>
-  <div class="grid two"><article class="card weather"><div class="card-title"><span class="icon">☀️</span><div><small>현재 날씨</small><h2>맑음 29°C</h2></div></div><div class="chips"><span>습도 62%</span><span>미세먼지 좋음</span></div></article>
+  <section class="hero"><div><span class="eyebrow">${dateText} · ${weatherLocation}</span><h1>오늘도 지구와 함께<br><em>시원해져요!</em></h1><p>작은 냉방 습관이 큰 초록을 만들어요.</p></div><div class="hero-art"><img src="/greenon-bear.png" alt="눈송이와 초록 잎을 든 GreenON 곰 캐릭터"></div></section>
+  <div class="grid two"><article class="card weather"><div class="card-title"><span class="icon">${currentWeather.icon}</span><div><small>${weatherLocation} 현재 날씨</small><h2>${currentWeather.condition} ${currentWeather.temperature}°C</h2></div></div><div class="chips"><span>습도 62%</span><span>미세먼지 좋음</span></div></article>
   <article class="card ${bad?'danger':''}"><div class="card-head"><div class="card-title"><span class="icon">❄️</span><div><small>거실 에어컨</small><h2>${a.power?'냉방 중':'전원 꺼짐'} · ${a.temperature}°C</h2></div></div><span class="status">${bad?'점검 필요':'정상'}</span></div><div class="stats"><span>바람 ${a.fan}</span><span>필터 ${a.filter}%</span><span>${a.sensorOk?'센서 정상':'센서 오류'}</span></div></article></div>
+  <section class="hourly-section" aria-labelledby="hourly-weather-title"><div class="section-head hourly-head"><div><small>GWANGJU WEATHER</small><h2 id="hourly-weather-title">시간별 기온</h2></div><span class="weather-source">가상 날씨 데이터</span></div><div class="hourly-weather" role="list" aria-label="광주 24시간 기온">${hourlyWeather.map((weather,index)=>`<article class="hourly-item ${index===0?'current':''}" role="listitem"><span class="hourly-time">${weather.label}</span><span class="hourly-icon" aria-hidden="true">${weather.icon}</span><strong>${weather.temperature}°</strong><small>${weather.condition}</small></article>`).join('')}</div></section>
   <article class="card mission ${state.mission?.status==='completed'?'success':bad?'danger':''}"><div class="card-head"><div><span class="eyebrow">TODAY'S GREEN MISSION</span><h2>${missions[0].title}</h2></div><span class="reward">+${missions[0].reward_points}P</span></div><p>${missions[0].description}</p><div class="progress"><i style="width:${progress}%"></i></div><div class="progress-label"><b>${state.mission?.status==='completed'?'미션 성공!':`${state.mission?.progress_minutes||0} / 120분`}</b><span>${progress}%</span></div>${bad?'<p class="warning">⚠️ 온도·필터·센서 상태를 확인해 주세요.</p>':''}<div class="actions">${!state.mission?'<button data-action="start">미션 참여하기</button>':state.mission.status==='completed'?'<button disabled>오늘 미션 완료</button>':'<button data-action="advance">시간 +30분</button>'}<button class="secondary" data-page="aircon">상태 조절</button></div></article>
   <section class="section-head"><div><small>MY GREEN</small><h2>초록 습관 현황</h2></div><button class="text-btn" data-page="wallet">자세히 →</button></section>
   <div class="grid three"><article class="mini"><span>💰</span><small>GREEN POINT</small><b>${state.points.toLocaleString()} P</b></article><article class="mini"><span>🌱</span><small>GREEN LEVEL</small><b>${level(state.points)}</b></article><article class="mini"><span>🏆</span><small>완료 미션</small><b>${state.mission?.status==='completed'?1:0}개</b></article></div>
