@@ -154,6 +154,7 @@ main {
   position: relative;
   flex: 0 0 230px;
   width: 230px;
+  aspect-ratio: 640 / 706;
   overflow: hidden;
   border: 1px solid #5a4c08;
   border-radius: 44px;
@@ -161,74 +162,38 @@ main {
   box-shadow: 0 14px 28px rgba(0, 0, 0, .42), 0 0 24px rgba(255, 212, 0, .08);
 }
 
-.hero-art img {
+.bear-frame {
   display: block;
   width: 100%;
-  height: auto;
-  animation: bear-nibble 2.8s ease-in-out infinite;
+  height: 100%;
+  object-fit: cover;
 }
 
-.salmon-bite {
-  --salmon-travel: -42px;
+.bear-hold {
+  position: relative;
+  z-index: 1;
+  animation: bear-hold-frame 3.2s ease-in-out infinite;
+}
+
+.bear-bite {
   position: absolute;
   z-index: 2;
-  top: 51%;
-  left: 50%;
-  width: 58px;
-  height: 25px;
-  border-radius: 68% 46% 46% 68%;
-  background: linear-gradient(180deg, #ffb267, #f16f37 72%);
-  box-shadow: inset 0 -3px 0 rgba(129, 45, 19, .24), 0 4px 9px rgba(0, 0, 0, .35);
-  animation: salmon-snack 2.8s ease-in-out infinite;
+  inset: 0;
+  opacity: 0;
+  animation: bear-bite-frame 3.2s ease-in-out infinite;
 }
 
-.salmon-bite::before {
-  content: '';
-  position: absolute;
-  top: 3px;
-  left: -14px;
-  border-top: 9px solid transparent;
-  border-right: 18px solid #f47b3d;
-  border-bottom: 9px solid transparent;
+@keyframes bear-hold-frame {
+  0%, 24%, 82%, 100% { opacity: 1; transform: translateY(0) scale(1); }
+  36%, 70% { opacity: 0; transform: translateY(-3px) scale(1.015); }
 }
 
-.salmon-bite::after {
-  content: '';
-  position: absolute;
-  top: 6px;
-  right: 8px;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #21150d;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, .42);
-}
-
-.salmon-bite i {
-  position: absolute;
-  top: 4px;
-  left: 19px;
-  width: 3px;
-  height: 17px;
-  transform: rotate(20deg);
-  border-radius: 4px;
-  background: rgba(255, 225, 194, .72);
-  box-shadow: 10px -3px 0 rgba(255, 225, 194, .62);
-}
-
-@keyframes bear-nibble {
-  0%, 15%, 100% { transform: translateY(0) rotate(-1deg) scale(1); }
-  38% { transform: translateY(3px) rotate(1deg) scale(1.02); }
-  46% { transform: translateY(0) rotate(-1deg) scale(1.02); }
-  54% { transform: translateY(3px) rotate(1deg) scale(1.02); }
-}
-
-@keyframes salmon-snack {
-  0%, 15% { transform: translate(-50%, 0) rotate(-4deg) scale(1); opacity: 1; }
-  38%, 54% { transform: translate(-50%, var(--salmon-travel)) rotate(5deg) scale(.82); opacity: 1; }
-  64% { transform: translate(-50%, var(--salmon-travel)) rotate(5deg) scale(.3); opacity: 0; }
-  65%, 84% { transform: translate(-50%, 0) rotate(-4deg) scale(.3); opacity: 0; }
-  100% { transform: translate(-50%, 0) rotate(-4deg) scale(1); opacity: 1; }
+@keyframes bear-bite-frame {
+  0%, 24%, 82%, 100% { opacity: 0; transform: translateY(6px) scale(.985); }
+  36% { opacity: 1; transform: translateY(0) scale(1.015); }
+  49% { opacity: 1; transform: translateY(2px) scale(1.02); }
+  58% { opacity: 1; transform: translateY(0) scale(1.015); }
+  70% { opacity: 1; transform: translateY(2px) scale(1.02); }
 }
 
 .grid {
@@ -751,10 +716,6 @@ nav button.active {
   .hero { min-height: 205px; padding: 25px; }
   .hero h1 { font-size: 30px; }
   .hero-art { flex-basis: 112px; width: 112px; border-radius: 28px; }
-  .salmon-bite { --salmon-travel: -21px; width: 30px; height: 13px; }
-  .salmon-bite::before { top: 2px; left: -8px; border-top-width: 5px; border-right-width: 10px; border-bottom-width: 5px; }
-  .salmon-bite::after { top: 3px; right: 4px; width: 2px; height: 2px; box-shadow: 0 0 0 1px rgba(255, 255, 255, .42); }
-  .salmon-bite i { top: 2px; left: 10px; width: 2px; height: 9px; box-shadow: 5px -1px 0 rgba(255, 225, 194, .62); }
   .two,
   .three { grid-template-columns: 1fr; }
   .grid.three { grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -769,6 +730,5 @@ nav button.active {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-art img,
-  .salmon-bite { animation: none; }
+  .bear-frame { animation: none; }
 }
