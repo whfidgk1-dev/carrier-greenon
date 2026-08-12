@@ -13,7 +13,7 @@ function level(points){return points>=5000?'TREE':points>=2000?'SPROUT':'SEED'}
 function danger(){const a=state.aircon;return !a.sensorOk||a.filter<20||a.temperature<26}
 function header(){return `<header><div class="brand"><span class="logo">C</span><div><b>Carrier GreenON</b><small>나의 시원한 친환경 습관</small></div></div><button class="avatar" data-action="auth" aria-label="계정">${state.user?'😊':'👤'}</button></header>`}
 function home(){const a=state.aircon;const bad=danger();const progress=Math.min(100,Math.round(((state.mission?.progress_minutes||0)/120)*100));return `<main>
-  <section class="hero"><div><span class="eyebrow">${dateText} · ${weatherLocation}</span><h1>오늘도 지구와 함께<br><em>시원해져요!</em></h1><p>작은 냉방 습관이 큰 초록을 만들어요.</p></div><div class="hero-art"><img class="bear-frame bear-hold" src="/greenon-bear-salmon-hold.png" alt="양손으로 연어를 들어 올려 먹는 GreenON 곰 캐릭터"><img class="bear-frame bear-bite" src="/greenon-bear-salmon-bite.png" alt="" aria-hidden="true"></div></section>
+  <section class="hero"><div><span class="eyebrow">${dateText} · ${weatherLocation}</span><h1>오늘도 지구와 함께<br><em>시원해져요!</em></h1><p>작은 냉방 습관이 큰 초록을 만들어요.</p></div><div class="hero-art salmon-story" role="img" aria-label="곰이 오른쪽에서 왼쪽으로 이동해 연어를 양손으로 잡고 먹은 뒤 오른쪽으로 돌아오는 애니메이션"><img class="story-salmon" src="/greenon-salmon.png" alt="" aria-hidden="true"><img class="story-bear" src="/greenon-bear-salmon.png" alt="" aria-hidden="true"></div></section>
   <div class="grid two"><article class="card weather"><div class="card-title"><span class="icon">${currentWeather.icon}</span><div><small>${weatherLocation} 현재 날씨</small><h2>${currentWeather.condition} ${currentWeather.temperature}°C</h2></div></div><div class="chips"><span>습도 62%</span><span>미세먼지 좋음</span></div></article>
   <article class="card ${bad?'danger':''}"><div class="card-head"><div class="card-title"><span class="icon">❄️</span><div><small>거실 에어컨</small><h2>${a.power?'냉방 중':'전원 꺼짐'} · ${a.temperature}°C</h2></div></div><span class="status">${bad?'점검 필요':'정상'}</span></div><div class="stats"><span>바람 ${a.fan}</span><span>필터 ${a.filter}%</span><span>${a.sensorOk?'센서 정상':'센서 오류'}</span></div></article></div>
   <section class="hourly-section" aria-labelledby="hourly-weather-title"><div class="section-head hourly-head"><div><small>GWANGJU WEATHER</small><h2 id="hourly-weather-title">시간별 기온</h2></div><span class="weather-source">가상 날씨 데이터</span></div><div class="hourly-weather" role="list" aria-label="광주 24시간 기온">${hourlyWeather.map((weather,index)=>`<article class="hourly-item ${index===0?'current':''}" role="listitem"><span class="hourly-time">${weather.label}</span><span class="hourly-icon" aria-hidden="true">${weather.icon}</span><strong>${weather.temperature}°</strong><small>${weather.condition}</small></article>`).join('')}</div></section>
@@ -26,8 +26,52 @@ function wallet(){return `<main><div class="page-title"><span class="eyebrow">GR
 function shop(){return `<main><div class="page-title shop-title"><span class="eyebrow">GREEN REWARD SHOP</span><h1>초록 습관을 선물로 바꿔요</h1><p>보유 ${state.points.toLocaleString()} P</p></div><div class="products">${state.rewards.map(r=>`<article class="product"><div class="product-art">${r.emoji||'🎁'}</div><span>${esc(r.category)}</span><h2>${esc(r.name)}</h2><p>${esc(r.description||'')}</p><div><b>${Number(r.points).toLocaleString()} P</b><button data-buy="${esc(r.id)}">구매</button></div></article>`).join('')}</div><section class="section-head"><h2>구매내역</h2></section><div class="list">${state.orders.length?state.orders.map(o=>`<article><span class="history-icon">🎁</span><div><b>${esc(o.rewards?.name||o.reward_name)}</b><small>${new Date(o.created_at).toLocaleDateString('ko-KR')}</small></div><strong>${Number(o.points_spent).toLocaleString()} P</strong></article>`).join(''):'<div class="empty">아직 구매한 상품이 없어요.</div>'}</div></main>`}
 function report(){const done=state.mission?.status==='completed'?1:0;return `<main><div class="page-title"><span class="eyebrow">GREEN REPORT</span><h1>나의 초록 리포트</h1><p>꾸준한 냉방 습관을 한눈에 확인해요.</p></div><div class="report-hero"><span>🌳</span><h2>${level(state.points)}</h2><p>다음 레벨까지 ${Math.max(0,(state.points<2000?2000:5000)-state.points).toLocaleString()} P</p></div><div class="grid three"><article class="mini"><small>완료 미션</small><b>${done}회</b></article><article class="mini"><small>절약 냉방</small><b>${state.mission?.progress_minutes||0}분</b></article><article class="mini"><small>받은 포인트</small><b>${state.transactions.filter(t=>t.amount>0).reduce((s,t)=>s+Number(t.amount),0)}P</b></article></div></main>`}
 function auth(){return authOpen?`<div class="modal-backdrop"><form class="modal" id="auth-form"><button type="button" class="close" data-action="auth">×</button><span class="logo">C</span><h2>${state.user&&configured?'내 계정':'GreenON 시작하기'}</h2>${state.user&&configured?`<p>${esc(state.user.email)}</p><button type="button" data-action="logout">로그아웃</button>`:`<label>이메일<input name="email" type="email" required placeholder="green@example.com"></label><label>비밀번호<input name="password" type="password" minlength="6" required placeholder="6자 이상"></label><button name="mode" value="login">로그인</button><button class="secondary" name="mode" value="signup">회원가입</button>${!configured?'<p class="warning">데모 모드입니다. Supabase 환경변수를 설정하면 인증이 활성화됩니다.</p>':''}`}</form></div>`:''}
-function render(){app.innerHTML=`${header()}${message}${page==='home'?home():page==='aircon'?aircon():page==='wallet'?wallet():page==='shop'?shop():report()}<nav>${[['home','⌂','홈'],['aircon','❄','에어컨'],['wallet','P','지갑'],['shop','🎁','리워드'],['report','▥','리포트']].map(([p,i,l])=>`<button data-page="${p}" class="${page===p?'active':''}"><span>${i}</span>${l}</button>`).join('')}</nav>${auth()}`}
+function render(){app.innerHTML=`${header()}${message}${page==='home'?home():page==='aircon'?aircon():page==='wallet'?wallet():page==='shop'?shop():report()}<nav>${[['home','⌂','홈'],['aircon','❄','에어컨'],['wallet','P','지갑'],['shop','🎁','리워드'],['report','▥','리포트']].map(([p,i,l])=>`<button data-page="${p}" class="${page===p?'active':''}"><span>${i}</span>${l}</button>`).join('')}</nav>${auth()}`;requestAnimationFrame(startSalmonStory)}
 async function refresh(){if(configured&&state.user) state=await loadCloudState(state.user);render()}
+
+// 한 번에 사진 한 장만 교체해 GIF처럼 명확한 이야기 순서를 만듭니다.
+// 같은 자세를 다른 위치에서 반복 사용해 곰이 무대 좌우로 실제 이동하는 느낌을 줍니다.
+const salmonStoryFrames=[
+  {src:'/greenon-bear-salmon.png',x:128,y:0,scale:1,salmon:true,duration:850},
+  {src:'/greenon-bear-salmon.png',x:92,y:-2,scale:1,salmon:true,duration:650},
+  {src:'/greenon-bear-reach.png',x:52,y:-1,scale:1.03,salmon:true,duration:700},
+  {src:'/greenon-bear-reach.png',x:31,y:2,scale:1.04,salmon:true,duration:650},
+  {src:'/greenon-bear-grab.png',x:7,y:4,scale:1.03,salmon:false,duration:900},
+  {src:'/greenon-bear-salmon-hold.png',x:40,y:-2,scale:1,salmon:false,duration:800},
+  {src:'/greenon-bear-salmon-bite.png',x:62,y:-3,scale:1.03,salmon:false,duration:1100},
+  {src:'/greenon-bear-salmon-bite.png',x:66,y:-1,scale:1.05,salmon:false,duration:550},
+  {src:'/greenon-bear-salmon-hold.png',x:91,y:-2,scale:1,salmon:false,duration:750},
+  {src:'/greenon-bear-salmon-hold.png',x:122,y:0,scale:1,salmon:false,duration:900}
+];
+salmonStoryFrames.forEach(frame=>{const image=new Image();image.src=frame.src});
+let salmonStoryTimer=0;
+function startSalmonStory(){
+  clearTimeout(salmonStoryTimer);
+  const stage=app.querySelector('.salmon-story');
+  if(!stage)return;
+  const bear=stage.querySelector('.story-bear');
+  const salmon=stage.querySelector('.story-salmon');
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){
+    bear.src=salmonStoryFrames[0].src;
+    bear.style.setProperty('--story-x','128%');
+    salmon.hidden=false;
+    return;
+  }
+  let frameIndex=0;
+  const showFrame=()=>{
+    if(!bear.isConnected)return;
+    const frame=salmonStoryFrames[frameIndex];
+    if(!bear.src.endsWith(frame.src))bear.src=frame.src;
+    bear.style.setProperty('--story-x',`${frame.x}%`);
+    bear.style.setProperty('--story-y',`${frame.y}%`);
+    bear.style.setProperty('--story-scale',frame.scale);
+    salmon.hidden=!frame.salmon;
+    stage.dataset.storyFrame=String(frameIndex+1);
+    frameIndex=(frameIndex+1)%salmonStoryFrames.length;
+    salmonStoryTimer=setTimeout(showFrame,frame.duration);
+  };
+  showFrame();
+}
 
 // 마우스가 히어로 위를 움직이면 곰이 시선을 따라오는 듯 가볍게 이동합니다.
 // 터치 조작과 모션 최소화 환경에서는 실행하지 않아 불필요한 움직임을 막습니다.
