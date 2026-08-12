@@ -1,6 +1,7 @@
 import './style.css';
 import {configured,supabase,getDemo,signUp,signIn,signOut,loadCloudState,startMission,addMissionTime,buyReward,saveAircon,missions,rewards as demoRewards} from './store.js';
 import {weatherLocation,getHourlyWeather} from './data.js';
+import {SALMON_FRAME_DURATION,salmonStoryFrames} from './salmon-story.js';
 
 const app=document.querySelector('#app');
 let state={...getDemo(),rewards:demoRewards}; let page='home'; let authOpen=false; let message='';
@@ -13,7 +14,7 @@ function level(points){return points>=5000?'TREE':points>=2000?'SPROUT':'SEED'}
 function danger(){const a=state.aircon;return !a.sensorOk||a.filter<20||a.temperature<26}
 function header(){return `<header><div class="brand"><span class="logo">C</span><div><b>Carrier GreenON</b><small>나의 시원한 친환경 습관</small></div></div><button class="avatar" data-action="auth" aria-label="계정">${state.user?'😊':'👤'}</button></header>`}
 function home(){const a=state.aircon;const bad=danger();const progress=Math.min(100,Math.round(((state.mission?.progress_minutes||0)/120)*100));return `<main>
-  <section class="hero"><div><span class="eyebrow">${dateText} · ${weatherLocation}</span><h1>오늘도 지구와 함께<br><em>시원해져요!</em></h1><p>작은 냉방 습관이 큰 초록을 만들어요.</p></div><div class="hero-art salmon-story" role="img" aria-label="곰이 오른쪽에서 왼쪽으로 이동해 연어를 양손으로 잡고 먹은 뒤 오른쪽으로 돌아오는 애니메이션"><img class="story-salmon" src="/greenon-salmon.png" alt="" aria-hidden="true"><img class="story-bear" src="/greenon-bear-salmon.png" alt="" aria-hidden="true"></div></section>
+  <section class="hero"><div><span class="eyebrow">${dateText} · ${weatherLocation}</span><h1>오늘도 지구와 함께<br><em>시원해져요!</em></h1><p>작은 냉방 습관이 큰 초록을 만들어요.</p></div><div class="hero-art salmon-story" role="img" aria-label="곰이 오른쪽에서 왼쪽으로 이동해 연어를 양손으로 잡고 먹은 뒤 오른쪽으로 돌아오는 20프레임 애니메이션"><img class="story-frame" src="/salmon-story/frame-01.png" alt="" aria-hidden="true"></div></section>
   <div class="grid two"><article class="card weather"><div class="card-title"><span class="icon">${currentWeather.icon}</span><div><small>${weatherLocation} 현재 날씨</small><h2>${currentWeather.condition} ${currentWeather.temperature}°C</h2></div></div><div class="chips"><span>습도 62%</span><span>미세먼지 좋음</span></div></article>
   <article class="card ${bad?'danger':''}"><div class="card-head"><div class="card-title"><span class="icon">❄️</span><div><small>거실 에어컨</small><h2>${a.power?'냉방 중':'전원 꺼짐'} · ${a.temperature}°C</h2></div></div><span class="status">${bad?'점검 필요':'정상'}</span></div><div class="stats"><span>바람 ${a.fan}</span><span>필터 ${a.filter}%</span><span>${a.sensorOk?'센서 정상':'센서 오류'}</span></div></article></div>
   <section class="hourly-section" aria-labelledby="hourly-weather-title"><div class="section-head hourly-head"><div><small>GWANGJU WEATHER</small><h2 id="hourly-weather-title">시간별 기온</h2></div><span class="weather-source">가상 날씨 데이터</span></div><div class="hourly-weather" role="list" aria-label="광주 24시간 기온">${hourlyWeather.map((weather,index)=>`<article class="hourly-item ${index===0?'current':''}" role="listitem"><span class="hourly-time">${weather.label}</span><span class="hourly-icon" aria-hidden="true">${weather.icon}</span><strong>${weather.temperature}°</strong><small>${weather.condition}</small></article>`).join('')}</div></section>
@@ -29,48 +30,32 @@ function auth(){return authOpen?`<div class="modal-backdrop"><form class="modal"
 function render(){app.innerHTML=`${header()}${message}${page==='home'?home():page==='aircon'?aircon():page==='wallet'?wallet():page==='shop'?shop():report()}<nav>${[['home','⌂','홈'],['aircon','❄','에어컨'],['wallet','P','지갑'],['shop','🎁','리워드'],['report','▥','리포트']].map(([p,i,l])=>`<button data-page="${p}" class="${page===p?'active':''}"><span>${i}</span>${l}</button>`).join('')}</nav>${auth()}`;requestAnimationFrame(startSalmonStory)}
 async function refresh(){if(configured&&state.user) state=await loadCloudState(state.user);render()}
 
-// 한 번에 사진 한 장만 교체해 GIF처럼 명확한 이야기 순서를 만듭니다.
-// 같은 자세를 다른 위치에서 반복 사용해 곰이 무대 좌우로 실제 이동하는 느낌을 줍니다.
-const salmonStoryFrames=[
-  {src:'/greenon-bear-salmon.png',x:128,y:0,scale:1,salmon:true,duration:850},
-  {src:'/greenon-bear-salmon.png',x:92,y:-2,scale:1,salmon:true,duration:650},
-  {src:'/greenon-bear-reach.png',x:52,y:-1,scale:1.03,salmon:true,duration:700},
-  {src:'/greenon-bear-reach.png',x:31,y:2,scale:1.04,salmon:true,duration:650},
-  {src:'/greenon-bear-grab.png',x:7,y:4,scale:1.03,salmon:false,duration:900},
-  {src:'/greenon-bear-salmon-hold.png',x:40,y:-2,scale:1,salmon:false,duration:800},
-  {src:'/greenon-bear-salmon-bite.png',x:62,y:-3,scale:1.03,salmon:false,duration:1100},
-  {src:'/greenon-bear-salmon-bite.png',x:66,y:-1,scale:1.05,salmon:false,duration:550},
-  {src:'/greenon-bear-salmon-hold.png',x:91,y:-2,scale:1,salmon:false,duration:750},
-  {src:'/greenon-bear-salmon-hold.png',x:122,y:0,scale:1,salmon:false,duration:900}
-];
+// 20장의 프레임을 0.2초마다 교체해 4초 길이의 GIF 같은 장면을 만듭니다.
+// 걷기와 잡기 사이의 중간 자세를 촘촘히 넣어 자세가 갑자기 튀는 느낌을 줄였습니다.
 salmonStoryFrames.forEach(frame=>{const image=new Image();image.src=frame.src});
-let salmonStoryTimer=0;
+let salmonStoryAnimation=0;
 function startSalmonStory(){
-  clearTimeout(salmonStoryTimer);
+  cancelAnimationFrame(salmonStoryAnimation);
   const stage=app.querySelector('.salmon-story');
   if(!stage)return;
-  const bear=stage.querySelector('.story-bear');
-  const salmon=stage.querySelector('.story-salmon');
+  const frameImage=stage.querySelector('.story-frame');
   if(matchMedia('(prefers-reduced-motion: reduce)').matches){
-    bear.src=salmonStoryFrames[0].src;
-    bear.style.setProperty('--story-x','128%');
-    salmon.hidden=false;
+    frameImage.src=salmonStoryFrames[0].src;
     return;
   }
-  let frameIndex=0;
-  const showFrame=()=>{
-    if(!bear.isConnected)return;
+  let previousFrame=-1;
+  const startedAt=performance.now();
+  const showFrame=timestamp=>{
+    if(!frameImage.isConnected)return;
+    const frameIndex=Math.floor((timestamp-startedAt)/SALMON_FRAME_DURATION)%salmonStoryFrames.length;
+    if(frameIndex===previousFrame){salmonStoryAnimation=requestAnimationFrame(showFrame);return}
     const frame=salmonStoryFrames[frameIndex];
-    if(!bear.src.endsWith(frame.src))bear.src=frame.src;
-    bear.style.setProperty('--story-x',`${frame.x}%`);
-    bear.style.setProperty('--story-y',`${frame.y}%`);
-    bear.style.setProperty('--story-scale',frame.scale);
-    salmon.hidden=!frame.salmon;
+    if(!frameImage.src.endsWith(frame.src))frameImage.src=frame.src;
     stage.dataset.storyFrame=String(frameIndex+1);
-    frameIndex=(frameIndex+1)%salmonStoryFrames.length;
-    salmonStoryTimer=setTimeout(showFrame,frame.duration);
+    previousFrame=frameIndex;
+    salmonStoryAnimation=requestAnimationFrame(showFrame);
   };
-  showFrame();
+  salmonStoryAnimation=requestAnimationFrame(showFrame);
 }
 
 // 마우스가 히어로 위를 움직이면 곰이 시선을 따라오는 듯 가볍게 이동합니다.
