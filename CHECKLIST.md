@@ -126,7 +126,7 @@
 > `render.yaml`과 환경변수 구성을 완료했고 Render `My Workspace` 연결을 확인했습니다. 워크스페이스 선택 확인과 Git 원격 저장소 연결 후 배포를 진행합니다.
 
 - [ ] Render 서비스 생성
-- [ ] Git 저장소 연결
+- [x] Git 저장소 연결 (`whfidgk1-dev/carrier-greenon`)
 - [ ] 환경변수 등록
 - [ ] Build 성공
 - [ ] 배포 성공
